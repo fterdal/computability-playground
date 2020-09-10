@@ -101,7 +101,7 @@ function generateAllPrograms(timeLimit = 100, alphabet) {
 // this simple program: console.log('') (only 15 characters long!)
 
 const start = new Date();
-const results = generateAllPrograms(30000);
+const results = generateAllPrograms(160000);
 console.log(`It took ${new Date() - start}ms`);
 
 results.forEach((strs, idx) =>
