@@ -24,48 +24,106 @@ let successes = [];
 
 // console.log(eval('       '.trim()))
 
-// We'll use all the characters corresponding to Unicode numbers 32 - 126.
-// While this isn't quite a complete set, it'll cover all the letters, numbers
-// and relevant symbols that we generally use when coding.
-const alphabet = [];
-for (let i = 32; i < 127; i++) {
-  alphabet.push(String.fromCharCode(i));
+function removeCapitals(arr) {
+  return [...new Set(arr.map((char) => char.toLowerCase()))];
 }
-console.log('ALPHABET:', alphabet);
+
+// function throttle(callback, waitForMS) {
+//   let readyToRun = true;
+//   return function (...args) {
+//     if (readyToRun) {
+//       readyToRun = false;
+//       setTimeout(() => {
+//         readyToRun = true;
+//       }, waitForMS);
+//       return callback(...args);
+//     }
+//   };
+// }
+
+const throttle = (fn, ms) => {
+  let allowExecution = true;
+  return function (...args) {
+    if (!allowExecution) return;
+    allowExecution = false;
+    const result = fn(...args);
+    setTimeout(() => {
+      allowExecution = true;
+    }, ms);
+    return result;
+  };
+};
+
+// We'll use all the characters corresponding to Unicode numbers 32 - 126, and
+// then subtract the capital letters.
+// While this isn't quite a complete set of characters, it'll cover most of the
+// relevant symbols that we generally use when coding. We're subtracting
+// capital letters purely so that we have fewer combinations to check (but
+// feel free to add them back in if you like).
+
+// console.log('ALPHABET:', alphabet);
+// console.log('ALPHABET LENGTH:', alphabet.length);
 
 // results will be a multi-dimensional array
 // the first inner array is all the strings of length one
 // the second is all the strings of length two
 // each inner array stores all the strings of length index + 1
-let results = [
-  [...alphabet], // reseults of length 1
-];
 
-// for (let i = 0; i < 2; i++) {
-let i = 0;
-results[i].forEach((attempt) => {
-  alphabet.forEach((letter) => {
-    // console.count('oops');
-    if (!results[i + 1]) results.push([]);
-    results[i + 1].push(attempt.concat(letter));
-  });
-});
-// }
+function generateAllPrograms(timeLimit = 100, alphabet) {
+  const startTime = new Date();
 
-i = 1;
-results[i].forEach((attempt) => {
-  alphabet.forEach((letter) => {
-    // console.count('oops');
-    if (!results[i + 1]) results.push([]);
-    results[i + 1].push(attempt.concat(letter));
-  });
-});
+  if (alphabet === undefined) {
+    alphabet = [];
+    for (let i = 32; i < 127; i++) {
+      alphabet.push(String.fromCharCode(i));
+    }
+    // If you want to leave the capitals in, feel free to comment this out.
+    alphabet = removeCapitals(alphabet);
+  }
+
+  let results = [
+    [...alphabet], // results of length 1
+  ];
+
+  const throttledCheckTime = throttle(() => {
+    const timeElapsed = new Date() - startTime;
+    console.log(`time elapsed`, timeElapsed);
+    if (timeElapsed > timeLimit) return true;
+    return false;
+  }, 500);
+
+  for (let i = 0; i < 3; i++) {
+    // if (!results[i]) results[i] = [];
+    results[i + 1] = [];
+    if (results[i - 1]) results[i - 1] = new Array(results[i - 1].length);
+    results[i].forEach((attempt) => {
+      // console.log(results[i].slice(0, 5))
+      alphabet.forEach((letter) => {
+        // if (!results[i + 1]) results.push([])
+        // const timeRemaining = timeLimit - timeElapsed;
+        // console.log(`Time elapsed`, timeElapsed);
+        // console.log(`Time limit`, timeLimit);
+        // console.log(`Time remaining`, timeRemaining);
+        if (throttledCheckTime()) return results;
+        results[i + 1].push(attempt.concat(letter));
+      });
+    });
+  }
+  return results;
+}
+
+const start = new Date();
+const results = generateAllPrograms();
+console.log(`It took ${new Date() - start}ms`);
 
 results.forEach((strs, idx) =>
   console.log(`There are ${strs.length} combinations of length ${idx + 1}`)
 );
 
-console.log(results[2].slice(234, 300))
+console.log(results[0])
+
+// Let's look at a random slice of three-length combos:
+console.log(results[2].slice(300, 350));
 
 // const startTime = new Date();
 // const duration = 10; // Do this for one second
