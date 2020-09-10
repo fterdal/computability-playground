@@ -18,9 +18,17 @@ const logIt = "console.log('hello')";
 // }
 // eval(logIt); // It logs!
 
-for (let i = 32; i < 128; i++) {
-  console.log('i = ', i, ' => ', String.fromCharCode(i))
-}
+let failedAttempts = 0;
+const startTime = new Date();
+const duration = 3000; // Do this for one second
+console.log(`starting to write every single program for ${duration}ms...`);
+while (new Date() - duration < startTime) {}
+
+console.log(`new Date() - startTime = `, new Date() - startTime);
+
+// for (let i = 32; i < 128; i++) {
+//   console.log('i = ', i, ' => ', String.fromCharCode(i));
+// }
 
 // const idx = 4
 
