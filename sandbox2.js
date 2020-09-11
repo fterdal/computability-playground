@@ -9,7 +9,7 @@ for (let num = 0; num < 21; num++) {
 // const alphabet = ['a', 'b', 'c'];
 // const alphabet = ['a', 'b'];
 // const alphabet = [null, 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
-const alphabet = [null, 'a', 'b', 'c'];
+const alphabet = ['a', 'b', 'c'];
 
 /**
  * IDEA: Create a lazy function that takes in a number and uses modulo to create
@@ -17,7 +17,8 @@ const alphabet = [null, 'a', 'b', 'c'];
  * those indices into the alphabet
  */
 
-const constructStr = (num) => {
+const constructStr = (num, alphabet = ['a', 'b', 'c']) => {
+  alphabet.unshift(null);
   let indices = [];
   const base = alphabet.length;
   while (num !== 0) {
@@ -26,20 +27,22 @@ const constructStr = (num) => {
     const quotient = parseInt(num / base);
     console.log({ rem, quotient });
     // indices.push(rem);
+    if (rem === 0) return null;
     indices.unshift(rem);
     num = quotient;
     // num = base;
   }
-  return indices;
+  // return indices
+  return indices.map(idx => alphabet[idx]).join('');
 };
 
 // const num = 3;
 // console.log(`constructStr(${num}) === [${constructStr(num)}]`);
 
-const combos = 18;
+const combos = 40;
 for (let num = 1; num < combos; num++) {
   console.log('');
-  console.log(`constructStr(${num}) === [${constructStr(num)}]`);
+  console.log(`constructStr(${num}) === "${constructStr(num)}"`);
 }
 
 const idealCombinations = [
