@@ -34,17 +34,29 @@ const throttle = (fn, wait) => {
   };
 };
 
+const constructStr = (num, alphabet = ['a', 'b', 'c']) => {
+  alphabet = [null, ...alphabet]
+  let indices = [];
+  const base = alphabet.length;
+  while (num !== 0) {
+    const rem = num % alphabet.length;
+    const quotient = parseInt(num / base);
+    // console.log({ rem, quotient });
+    if (rem === 0) return null;
+    indices.unshift(rem);
+    num = quotient;
+  }
+  const result = indices.map((idx) => alphabet[idx]).join('');
+  // console.log(result);
+  return result;
+};
+
 // We'll use all the characters corresponding to Unicode numbers 32 - 126, and
 // then subtract the capital letters.
 // While this isn't quite a complete set of characters, it'll cover most of the
 // relevant symbols that we generally use when coding. We're subtracting
 // capital letters purely so that we have fewer combinations to check (but
 // feel free to add them back in if you like).
-
-// results will be a multi-dimensional array
-// the first inner array is all the strings of length one
-// the second is all the strings of length two
-// each inner array stores all the strings of length index + 1
 
 function generateAllPrograms(timeLimit = 100, alphabet) {
   const startTime = new Date();
@@ -54,15 +66,9 @@ function generateAllPrograms(timeLimit = 100, alphabet) {
     for (let i = 32; i < 127; i++) {
       alphabet.push(String.fromCharCode(i));
     }
-    0;
     // If you want to leave the capitals in, feel free to comment out this line
     alphabet = removeCapitals(alphabet);
   }
-
-  let results = [
-    [...alphabet], // results of length 1 are just the alphabet
-    // results of length 2 will go here
-  ];
 
   const throttledCheckTime = throttle(() => {
     const timeElapsed = new Date() - startTime;
@@ -70,27 +76,13 @@ function generateAllPrograms(timeLimit = 100, alphabet) {
     console.log(`Time Remaining: ${(timeLimit - timeElapsed) / 1000} seconds`);
     return false;
   }, 500);
+  console.log(alphabet);
 
-  for (let i = 0; ; i++) {
-    // Creat a new array to store the new length combinations
-    results[i + 1] = [];
-
-    // Clear out the old one to save memory (but preserve the lenfth)
-    if (results[i - 1]) results[i - 1] = new Array(results[i - 1].length);
-
-    for (let j = 0; j < results[i].length; j++) {
-      const attempt = results[i][j];
-
-      for (let x = 0; x < alphabet.length; x++) {
-        // If time has expired, quit the function and return the results
-        if (throttledCheckTime()) return results;
-
-        const letter = alphabet[x];
-        results[i + 1].push(attempt.concat(letter));
-      }
-    }
+  for (let i = 1; ; i++) {
+    if (throttledCheckTime()) return;
+    const programAttempt = constructStr(i, alphabet);
+    if (programAttempt) console.log(programAttempt);
   }
-  // return results;
 }
 
 // Given an alphabet of 69 characters, there should be 22667121 different
@@ -101,12 +93,12 @@ function generateAllPrograms(timeLimit = 100, alphabet) {
 // this simple program: console.log('') (only 15 characters long!)
 
 const start = new Date();
-const results = generateAllPrograms(160000);
+generateAllPrograms(100000);
 console.log(`It took ${new Date() - start}ms`);
 
-results.forEach((strs, idx) =>
-  console.log(`I found ${strs.length} combinations of length ${idx + 1}`)
-);
+// results.forEach((strs, idx) =>
+//   console.log(`I found ${strs.length} combinations of length ${idx + 1}`)
+// );
 
 // console.log(`Time's up!
 // ${red(`Failed Attempts: ${failedAttempts}`)}

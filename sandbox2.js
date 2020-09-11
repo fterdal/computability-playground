@@ -18,7 +18,7 @@ const alphabet = ['a', 'b', 'c'];
  */
 
 const constructStr = (num, alphabet = ['a', 'b', 'c']) => {
-  alphabet.unshift(null);
+  alphabet = [null, ...alphabet];
   let indices = [];
   const base = alphabet.length;
   while (num !== 0) {
@@ -30,9 +30,7 @@ const constructStr = (num, alphabet = ['a', 'b', 'c']) => {
     if (rem === 0) return null;
     indices.unshift(rem);
     num = quotient;
-    // num = base;
   }
-  // return indices
   return indices.map(idx => alphabet[idx]).join('');
 };
 
