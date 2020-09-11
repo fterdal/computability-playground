@@ -1,26 +1,18 @@
 const { red, green } = require('chalk');
 
-// const valid = 'let a;';
-
-// const invalid = 'let 1;';
-
-// const logIt = "console.log('hello')";
-
-// try {
-//   eval(valid);
-//   eval(invalid);
-// } catch (err) {
-//   console.log(err);
-// }
-// eval(logIt); // It logs!
-
-let failedAttempts = 0;
-let successfulAttempts = 0;
-let successes = [];
-
 function removeCapitals(arr) {
   return [...new Set(arr.map((char) => char.toLowerCase()))];
 }
+
+const throttle = (fn, wait) => {
+  let lastCalled = null;
+  return function (...args) {
+    if (!lastCalled || Date.now() - lastCalled >= wait) {
+      lastCalled = Date.now();
+      return fn.apply(this, args);
+    }
+  };
+};
 
 const constructStr = (num, alphabet = ['a', 'b', 'c']) => {
   alphabet = [null, ...alphabet];
@@ -49,6 +41,10 @@ const constructStr = (num, alphabet = ['a', 'b', 'c']) => {
 function generateAllPrograms(timeLimit = 100, alphabet) {
   const startTime = new Date();
 
+  let failedAttempts = 0;
+  let successfulAttempts = 0;
+  let successes = [];
+
   if (alphabet === undefined) {
     alphabet = [];
     for (let i = 32; i < 127; i++) {
@@ -57,20 +53,30 @@ function generateAllPrograms(timeLimit = 100, alphabet) {
     // If you want to leave the capitals in, feel free to comment out this line
     alphabet = removeCapitals(alphabet);
   }
+  const throttledLoadingTime = throttle(function () {
+    process.stdout.write('.');
+  }, 100);
 
-  for (let i = 1; ; i++) {
+  for (let I = 1; ; I++) {
     const timeElapsed = new Date() - startTime;
-    if (timeElapsed > timeLimit) return;
-    const programAttempt = constructStr(i, alphabet);
+    if (timeElapsed > timeLimit) {
+      return {
+        failedAttempts,
+        successfulAttempts,
+        successes,
+      };
+    }
+    throttledLoadingTime();
+    const programAttempt = constructStr(I, alphabet);
     if (programAttempt) {
       try {
         // WHOA! Apparently, eval uses the containing scope!
         // I guess this makes sense. But it's still strange.
         // It means that eval("i") runs fine because i is declared
-        // in this for loop.
+        // in this for loop. Changing the i to capital for now (since
+        // capitals were excluded).
         eval(programAttempt);
         successfulAttempts++;
-        // console.log(programAttempt);
         successes.push(programAttempt);
       } catch (err) {
         failedAttempts++;
@@ -80,18 +86,26 @@ function generateAllPrograms(timeLimit = 100, alphabet) {
 }
 
 const start = new Date();
-generateAllPrograms(1000);
-console.log(`It took ${new Date() - start}ms`);
 
-console.log(`Time's up!
+// Change this to give the function more time to run
+const timeLimit = 60000;
+
+const { successes, successfulAttempts, failedAttempts } = generateAllPrograms(
+  timeLimit
+);
+
+console.log(`\nTime's up! It took ${
+  new Date() - start
+}ms to generate all these programs
 ${red(`Failed Attempts: ${failedAttempts}`)}
 ${green(`Successful Attempts: ${successfulAttempts}`)}
 `);
 
 if (successes.length) {
-  console.log(green('\nSuccesses'));
+  console.log(green('\nThe Longest Successful Attempts:'));
   console.log('--------------------');
-  successes.slice(0, 50).forEach((success) => {
+  const longestOnes = successes.slice(successes.length - 10, successes.length);
+  longestOnes.slice(0, 50).forEach((success) => {
     console.log(success);
     console.log('--------------------');
   });
