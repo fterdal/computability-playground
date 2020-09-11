@@ -91,7 +91,7 @@ function generateAllPrograms(timeLimit = 100, alphabet) {
 const start = new Date();
 
 // Change this to give the function more time to run
-const timeLimit = 90000;
+const timeLimit = 10000;
 
 const { successes, successfulAttempts, failedAttempts } = generateAllPrograms(
   timeLimit
@@ -110,6 +110,13 @@ if (successes.length) {
   console.log('--------------------');
   const longestOnes = successes.slice(successes.length - 10, successes.length);
   longestOnes.slice(0, 50).forEach((success) => {
+    console.log(success);
+    console.log('--------------------');
+  });
+  console.log(green('\nThe Shortest Successful Attempts:'));
+  console.log('--------------------');
+  const shortestOnes = successes.slice(0, 10);
+  shortestOnes.slice(0, 50).forEach((success) => {
     console.log(success);
     console.log('--------------------');
   });
