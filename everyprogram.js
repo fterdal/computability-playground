@@ -1,4 +1,8 @@
-const { red, green } = require('chalk');
+const { red, green, magenta } = require('chalk');
+const { parse } = require('acorn');
+// const { inspect } = require('util');
+// console.log(parse('1 + 1', { ecmaVersion: 2020 }));
+// console.log(inspect(parse('(~v)', { ecmaVersion: 2020 }), { depth: null }));
 
 function removeCapitals(arr) {
   return [...new Set(arr.map((char) => char.toLowerCase()))];
@@ -21,13 +25,11 @@ const constructStr = (num, alphabet = ['a', 'b', 'c']) => {
   while (num !== 0) {
     const rem = num % alphabet.length;
     const quotient = parseInt(num / base);
-    // console.log({ rem, quotient });
     if (rem === 0) return null;
     indices.unshift(rem);
     num = quotient;
   }
   const result = indices.map((idx) => alphabet[idx]).join('');
-  // console.log(result);
   return result;
 };
 
@@ -75,7 +77,8 @@ function generateAllPrograms(timeLimit = 100, alphabet) {
         // It means that eval("i") runs fine because i is declared
         // in this for loop. Changing the i to capital for now (since
         // capitals were excluded).
-        eval(programAttempt);
+        // eval(programAttempt);
+        parse(programAttempt, { ecmaVersion: 2020 });
         successfulAttempts++;
         successes.push(programAttempt);
       } catch (err) {
@@ -88,7 +91,7 @@ function generateAllPrograms(timeLimit = 100, alphabet) {
 const start = new Date();
 
 // Change this to give the function more time to run
-const timeLimit = 60000;
+const timeLimit = 90000;
 
 const { successes, successfulAttempts, failedAttempts } = generateAllPrograms(
   timeLimit
@@ -97,6 +100,7 @@ const { successes, successfulAttempts, failedAttempts } = generateAllPrograms(
 console.log(`\nTime's up! It took ${
   new Date() - start
 }ms to generate all these programs
+${magenta(`Total # of Attempts: ${successfulAttempts + failedAttempts}`)}
 ${red(`Failed Attempts: ${failedAttempts}`)}
 ${green(`Successful Attempts: ${successfulAttempts}`)}
 `);
