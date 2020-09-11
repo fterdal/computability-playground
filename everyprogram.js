@@ -22,20 +22,8 @@ function removeCapitals(arr) {
   return [...new Set(arr.map((char) => char.toLowerCase()))];
 }
 
-// We use a throttled function to keep track of how much time remains and
-// reporting to the user
-const throttle = (fn, wait) => {
-  let lastCalled = null;
-  return function (...args) {
-    if (!lastCalled || Date.now() - lastCalled >= wait) {
-      lastCalled = Date.now();
-      return fn.apply(this, args);
-    }
-  };
-};
-
 const constructStr = (num, alphabet = ['a', 'b', 'c']) => {
-  alphabet = [null, ...alphabet]
+  alphabet = [null, ...alphabet];
   let indices = [];
   const base = alphabet.length;
   while (num !== 0) {
@@ -70,45 +58,40 @@ function generateAllPrograms(timeLimit = 100, alphabet) {
     alphabet = removeCapitals(alphabet);
   }
 
-  const throttledCheckTime = throttle(() => {
-    const timeElapsed = new Date() - startTime;
-    if (timeElapsed > timeLimit) return true;
-    console.log(`Time Remaining: ${(timeLimit - timeElapsed) / 1000} seconds`);
-    return false;
-  }, 500);
-  console.log(alphabet);
-
   for (let i = 1; ; i++) {
-    if (throttledCheckTime()) return;
+    const timeElapsed = new Date() - startTime;
+    if (timeElapsed > timeLimit) return;
     const programAttempt = constructStr(i, alphabet);
-    if (programAttempt) console.log(programAttempt);
+    if (programAttempt) {
+      try {
+        // WHOA! Apparently, eval uses the containing scope!
+        // I guess this makes sense. But it's still strange.
+        // It means that eval("i") runs fine because i is declared
+        // in this for loop.
+        eval(programAttempt);
+        successfulAttempts++;
+        // console.log(programAttempt);
+        successes.push(programAttempt);
+      } catch (err) {
+        failedAttempts++;
+      }
+    }
   }
 }
 
-// Given an alphabet of 69 characters, there should be 22667121 different
-// combinations of length 4: Math.pow(69, 4)
-
-// In my experiments, I had to run the program for about 30 seconds before it
-// finished all of those combinations. Imagine how long it would take to generate
-// this simple program: console.log('') (only 15 characters long!)
-
 const start = new Date();
-generateAllPrograms(100000);
+generateAllPrograms(1000);
 console.log(`It took ${new Date() - start}ms`);
 
-// results.forEach((strs, idx) =>
-//   console.log(`I found ${strs.length} combinations of length ${idx + 1}`)
-// );
-
-// console.log(`Time's up!
-// ${red(`Failed Attempts: ${failedAttempts}`)}
-// ${green(`Successful Attempts: ${successfulAttempts}`)}
-// `);
+console.log(`Time's up!
+${red(`Failed Attempts: ${failedAttempts}`)}
+${green(`Successful Attempts: ${successfulAttempts}`)}
+`);
 
 if (successes.length) {
   console.log(green('\nSuccesses'));
   console.log('--------------------');
-  successes.forEach((success) => {
+  successes.slice(0, 50).forEach((success) => {
     console.log(success);
     console.log('--------------------');
   });
