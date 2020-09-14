@@ -91,7 +91,7 @@ function generateAllPrograms(timeLimit = 100, alphabet) {
 const start = new Date();
 
 // Change this to give the function more time to run
-const timeLimit = 10000;
+const timeLimit = 100000;
 
 const { successes, successfulAttempts, failedAttempts } = generateAllPrograms(
   timeLimit
